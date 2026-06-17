@@ -1,6 +1,32 @@
-import Header from "./Header"
-import Content from "./Content"
-import Total from "./Total"
+const Header = ({ course }) => {
+  return (
+    <h1>{course}</h1>
+  )
+}
+
+const Part = ({ part, exercises }) => {
+  return (
+    <p>
+      {part} {exercises}
+    </p>
+  )
+}
+
+const Content = ({ part1, exercises1, part2, exercises2, part3, exercises3 }) => {
+  return (
+    <div>
+      <Part part={part1} exercises={exercises1} />
+      <Part part={part2} exercises={exercises2} />
+      <Part part={part3} exercises={exercises3} />
+    </div>
+  )
+}
+
+const Total = ({ sum }) => {
+  return (
+    <p>Number of exercises {sum}</p>
+  )
+}
 
 const App = () => {
   const course = 'Half Stack application development'
@@ -13,13 +39,13 @@ const App = () => {
 
   return (
     <div>
-      <Header course={course}/>
+      <Header course={course} />
       <Content
         part1={part1} exercises1={exercises1}
         part2={part2} exercises2={exercises2}
         part3={part3} exercises3={exercises3}
       />
-      <Total sum={exercises1+exercises2+exercises3}/>
+      <Total sum={exercises1 + exercises2 + exercises3} />
     </div>
   )
 }
