@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import phonebookService from './services/phonebook'
+import Notification from './components/Notification'
+import './index.css'
 
 const Filter = ({ search, onChange }) => (
   <div>Filter by name: <input value={search} onChange={onChange} /></div>
@@ -19,12 +21,11 @@ const PersonForm = ({ onSubmit, newName, handleNameChange, newNumber, handlePhon
   </form>
 )
 
-const Persons = ({ persons,onDelete }) => (
+const Persons = ({ persons, onDelete }) => (
   <div>
     {persons.map(person =>
-      <div key={person.id}>{person.name} {person.number} <button onClick={()=> onDelete(person.id)}>delete</button></div>
+      <div key={person.id}>{person.name} {person.number} <button onClick={() => onDelete(person.id)}>delete</button></div>
     )}
-    
   </div>
 )
 
@@ -33,6 +34,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
+  const [notification, setNotification] = useState({ message: null, type: null })
 
   useEffect(() => {
     phonebookService
@@ -41,6 +43,11 @@ const App = () => {
         setPersons(response.data)
       })
   }, [])
+
+  const showNotification = (message, type) => {
+    setNotification({ message, type })
+    setTimeout(() => setNotification({ message: null, type: null }), 5000)
+  }
 
   const addNewName = (event) => {
     event.preventDefault()
@@ -57,6 +64,11 @@ const App = () => {
           setPersons(persons.map(p => p.id === existing.id ? response.data : p))
           setNewName('')
           setNewNumber('')
+          showNotification(`Updated ${existing.name}'s number`, 'success')
+        })
+        .catch(() => {
+          showNotification(`${existing.name} was already removed from server`, 'error')
+          setPersons(persons.filter(p => p.id !== existing.id))
         })
       return
     }
@@ -69,6 +81,7 @@ const App = () => {
         setPersons(persons.concat(response.data))
         setNewName('')
         setNewNumber('')
+        showNotification(`Added ${newName}`, 'success')
       })
   }
 
@@ -89,6 +102,8 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
 
+      <Notification message={notification.message} type={notification.type} />
+
       <Filter search={search} onChange={(e) => setSearch(e.target.value)} />
 
       <h3>Add a new</h3>
@@ -103,7 +118,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={filteredPersons} onDelete={deletePerson}/>
+      <Persons persons={filteredPersons} onDelete={deletePerson} />
     </div>
   )
 }
