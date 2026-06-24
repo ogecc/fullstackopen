@@ -9,9 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "json-server --watch db.json --port 3001"
-
   },
   "dependencies": {
+    "axios": "^1.18.1",
     "json-server": "^1.0.0-beta.15",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
