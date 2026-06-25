@@ -66,9 +66,13 @@ const App = () => {
           setNewNumber('')
           showNotification(`Updated ${existing.name}'s number`, 'success')
         })
-        .catch(() => {
-          showNotification(`${existing.name} was already removed from server`, 'error')
-          setPersons(persons.filter(p => p.id !== existing.id))
+        .catch(error => {
+          if (error.response && error.response.status === 400) {
+            showNotification(error.response.data.error, 'error')
+          } else {
+            showNotification(`${existing.name} was already removed from server`, 'error')
+            setPersons(persons.filter(p => p.id !== existing.id))
+          }
         })
       return
     }
@@ -82,6 +86,9 @@ const App = () => {
         setNewName('')
         setNewNumber('')
         showNotification(`Added ${newName}`, 'success')
+      })
+      .catch(error => {
+        showNotification(error.response.data.error, 'error')
       })
   }
 
