@@ -2,16 +2,33 @@ const assert = require('node:assert')
 const { test, after, beforeEach, describe } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const helper = require('./test_helper')
 const Note = require('../models/note')
+const User = require('../models/user')
 
 const api = supertest(app)
 
 describe('when there is initially some notes saved', () => {
+  let token
+
   beforeEach(async () => {
     await Note.deleteMany({})
-    await Note.insertMany(helper.initialNotes)
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('testpassword', 10)
+    const user = new User({ username: 'testuser', passwordHash })
+    await user.save()
+
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'testuser', password: 'testpassword' })
+
+    token = loginResponse.body.token
+
+    const notesWithUser = helper.initialNotes.map(n => ({ ...n, user: user._id }))
+    await Note.insertMany(notesWithUser)
   })
 
   test('notes are returned as json', async () => {
